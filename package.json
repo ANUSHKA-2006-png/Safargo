@@ -1,0 +1,21 @@
+{
+  "name": "safargo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered smart travel planning and recommendation system.",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "backend:dev": "npm --prefix backend run dev",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

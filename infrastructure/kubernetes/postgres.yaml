@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: safargo-postgres
+  namespace: safargo
+spec:
+  serviceName: safargo-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safargo-postgres
+  template:
+    metadata:
+      labels:
+        app: safargo-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: safargo
+            - name: POSTGRES_USER
+              value: safargo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: safargo-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safargo-postgres
+  namespace: safargo
+spec:
+  selector:
+    app: safargo-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

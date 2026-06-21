@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safargo-frontend
+  namespace: safargo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: safargo-frontend
+  template:
+    metadata:
+      labels:
+        app: safargo-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/safargo/safargo-frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safargo-frontend
+  namespace: safargo
+spec:
+  selector:
+    app: safargo-frontend
+  ports:
+    - port: 80
+      targetPort: 80

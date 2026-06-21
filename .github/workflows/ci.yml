@@ -1,0 +1,49 @@
+name: Safargo CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://safargo:safargo_dev_password@localhost:5432/safargo?schema=public
+      REDIS_URL: ""
+      CORS_ORIGIN: http://localhost:5173
+      JWT_ACCESS_SECRET: ci-access-secret-with-at-least-24-characters
+      JWT_REFRESH_SECRET: ci-refresh-secret-with-at-least-24-characters
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+        working-directory: backend
+      - run: npm run prisma:generate
+        working-directory: backend
+      - run: npm run lint
+        working-directory: backend
+      - run: npm test
+        working-directory: backend
+      - run: npm run build
+        working-directory: backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend

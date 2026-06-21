@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safargo-redis
+  namespace: safargo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safargo-redis
+  template:
+    metadata:
+      labels:
+        app: safargo-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safargo-redis
+  namespace: safargo
+spec:
+  selector:
+    app: safargo-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
